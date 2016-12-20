@@ -3,18 +3,22 @@ require 'sinatra'
 require 'sinatra/reloader'
 
 get '/' do
+	@error = ''
 	erb "Hello! <a href=\"https://github.com/bootstrap-ruby/sinatra-bootstrap\">Original</a> pattern has been modified for <a href=\"http://rubyschool.us/\">Ruby School</a>"			
 end
 
 get '/about' do
+		@error = ''
 	erb :about
 end
 
 get '/visit' do
+	@error = ''
 	erb :visit
 end
 
 get '/contacts' do
+	@error = ''
 	erb :contacts
 end
 
@@ -24,36 +28,21 @@ post '/visit' do
 	@datetime = params[:datetime]
 	@master = params[:master]
 	@color = params[:color]
-	@error = ""
-	need_coma = false
+	@error = ''
 
-	if (@username == "") or (@phone == "") or (@datetime == "") or (@master == "")
-		@error = "Введите "
-		if @username == ""
-			@error = @error + 'имя'
-			need_coma = true
-		end
-		if @phone == ""
-			if need_coma 
-				@error = @error + ', '
-			end
-			@error = @error + 'номер телефона'
-			need_coma = true
-		end
-		if @datetime == ""
-			if need_coma 
-				@error = @error + ', '
-			end
-			@error = @error + 'время посещения'
-		end
-		@error = @error + '.'
+  h_err = {
+      username: 'Введите имя',
+      phone: 'Введите телефон',
+      datetime: 'Введите дату и время'
+  }
 
+  @error = h_err.select { |key,_| params[key] == ""}.values.join(", ")
+	return erb :visit if @error != ''
 	
-	else
+
 		f = File.open './public/users.txt' , 'a'
 		f.write "User: #{@username}, Phone #{@phone}, Date #{@datetime}, master #{@master}, color #{@color}\n"
 		f.close
-	end
 	erb :visit
 end
 
